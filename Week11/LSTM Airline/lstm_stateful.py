@@ -6,6 +6,10 @@ from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import LSTM
 from sklearn.preprocessing import MinMaxScaler
+
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
 # convert an array of values into a dataset matrix
 def create_dataset(dataset, look_back=1):
 	dataX, dataY = [], []

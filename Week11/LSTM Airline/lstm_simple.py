@@ -7,6 +7,10 @@ from keras.layers import Dense
 from keras.layers import LSTM
 from sklearn.preprocessing import MinMaxScaler
 # convert an array of values into a dataset matrix
+
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
 def create_dataset(dataset, look_back=1):
 	dataX, dataY = [], []
 	for i in range(len(dataset)-look_back-1):

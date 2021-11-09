@@ -2,8 +2,12 @@
 import numpy
 from keras.datasets import imdb
 from matplotlib import pyplot
+np_load_old = numpy.load
+numpy.load = lambda *a,**k: np_load_old(*a, allow_pickle=True, **k)
+
 # load the dataset
-(X_train, y_train), (X_test, y_test) = imdb.load_data(test_split=0)
+(X_train, y_train), (X_test, y_test) = imdb.load_data()
+numpy.load = np_load_old
 # summarize size
 print("Training data: ")
 print(X_train.shape)
