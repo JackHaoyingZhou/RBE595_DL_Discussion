@@ -199,11 +199,11 @@ if __name__ == '__main__':
 	layer_name = 'conv2d_1'
 	size = 32
 	margin = 5
-	results = np.zeros((8 * size + 7 * margin, 4 * size + 3 * margin, 3))
+	results = np.zeros((4 * size + 3 * margin, 8 * size + 7 * margin, 3))
 
-	for i in range(8):
-		for j in range(4):
-			filter_img = generate_pattern(layer_name, i + (j * 8), size=size)
+	for i in range(4):
+		for j in range(8):
+			filter_img = generate_pattern(layer_name, (i*8) + j, size=size)
 			horizontal_start = i * size + i * margin
 			horizontal_end = horizontal_start + size
 			vertical_start = j * size + j * margin
