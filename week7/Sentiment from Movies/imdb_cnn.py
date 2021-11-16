@@ -55,7 +55,6 @@ history = model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=1
 scores = model.evaluate(X_test, y_test, verbose=0)
 print("Accuracy: %.2f%%" % (scores[1]*100))
 
-
 print(history.history.keys())
 # summarize history for accuracy
 _, ax = plt.subplots(2, 1)

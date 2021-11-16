@@ -130,6 +130,33 @@ class RecogniseHandWrittenDigits():
 		self.trained_model = keras.models.load_model("cnn_mnist.h5")
 		print(self.trained_model.summary())
 
+		model = self.trained_model
+
+		for layer in model.layers:
+			if 'conv' in layer.name:
+				weights, bias = layer.get_weights()
+				filters = layer.kernel
+				print(layer.name, filters.shape)
+
+				# normalize filter values between  0 and 1 for visualization
+				f_min, f_max = weights.min(), weights.max()
+				filters = (weights - f_min) / (f_max - f_min)
+				print(filters.shape[3])
+				filter_cnt = 1
+
+				# plotting all the filters
+				for i in range(filters.shape[3]):
+					# get the filters
+					filt = filters[:, :, :, i]
+					# plotting each of the channel, color image RGB channels
+					for j in range(filters.shape[0]):
+						ax = plt.subplot(filters.shape[3], filters.shape[0], filter_cnt)
+						ax.set_xticks([])
+						ax.set_yticks([])
+						plt.imshow(filt[:, :, j])
+						filter_cnt += 1
+				plt.show()
+
 	def testModel(self):
 
 		self.training_score = self.trained_model.evaluate(self.x_test, self.y_test, verbose=self.verbosity)
@@ -149,64 +176,64 @@ if __name__ == '__main__':
 	# created_model = mnist_obj.createModel()
 	# mnist_obj.trainModel(created_model)
 	mnist_obj.loadModel()
-	mnist_obj.visualizeLayer('conv2d')
+	# mnist_obj.visualizeLayer('conv2d')
 	mnist_obj.testModel()
 	mnist_obj.getScores()
-
-	model = mnist_obj.trained_model
-
-
-	def deprocess_image(x):
-
-		x -= x.mean()
-		x /= (x.std() + 1e-5)
-		x *= 0.1
-		x += 0.5
-		x = np.clip(x, 0, 1)
-		x *= 255
-		x = np.clip(x, 0, 255).astype('uint8')
-		return x
-
-
-	# ---------------------------------------------------------------------------------------------------
-	# Utility function for generating patterns for given layer starting from empty input image and then
-	# applying Stochastic Gradient Ascent for maximizing the response of particular filter in given layer
-	# ---------------------------------------------------------------------------------------------------
-
-	def generate_pattern(layer_name, filter_index, size=150):
-
-		layer_output = model.get_layer(layer_name).output
-		loss = K.mean(layer_output[:, :, :, filter_index])
-		grads = K.gradients(loss, model.input)[0]
-		grads /= (K.sqrt(K.mean(K.square(grads))) + 1e-5)
-		iterate = K.function([model.input], [loss, grads])
-		input_img_data = np.random.random((1, size, size, 3)) * 20 + 128.
-		step = 1.
-		for i in range(80):
-			loss_value, grads_value = iterate([input_img_data])
-			input_img_data += grads_value * step
-
-		img = input_img_data[0]
-		return deprocess_image(img)
-
-
-	# ------------------------------------------------------------------------------------------
-	# Generating convolution layer filters for intermediate layers using above utility functions
-	# ------------------------------------------------------------------------------------------
-
-	layer_name = 'conv2d'
-	size = 299
-	margin = 5
-	results = np.zeros((8 * size + 7 * margin, 8 * size + 7 * margin, 3))
-
-	for i in range(8):
-		for j in range(8):
-			filter_img = generate_pattern(layer_name, i + (j * 8), size=size)
-			horizontal_start = i * size + i * margin
-			horizontal_end = horizontal_start + size
-			vertical_start = j * size + j * margin
-			vertical_end = vertical_start + size
-			results[horizontal_start: horizontal_end, vertical_start: vertical_end, :] = filter_img
-
-	plt.figure(figsize=(20, 20))
-	plt.savefig(results)
+	#
+	# model = mnist_obj.trained_model
+	#
+	#
+	# def deprocess_image(x):
+	#
+	# 	x -= x.mean()
+	# 	x /= (x.std() + 1e-5)
+	# 	x *= 0.1
+	# 	x += 0.5
+	# 	x = np.clip(x, 0, 1)
+	# 	x *= 255
+	# 	x = np.clip(x, 0, 255).astype('uint8')
+	# 	return x
+	#
+	#
+	# # ---------------------------------------------------------------------------------------------------
+	# # Utility function for generating patterns for given layer starting from empty input image and then
+	# # applying Stochastic Gradient Ascent for maximizing the response of particular filter in given layer
+	# # ---------------------------------------------------------------------------------------------------
+	#
+	# def generate_pattern(layer_name, filter_index, size=150):
+	#
+	# 	layer_output = model.get_layer(layer_name).output
+	# 	loss = K.mean(layer_output[:, :, :, filter_index])
+	# 	grads = K.gradients(loss, model.input)[0]
+	# 	grads /= (K.sqrt(K.mean(K.square(grads))) + 1e-5)
+	# 	iterate = K.function([model.input], [loss, grads])
+	# 	input_img_data = np.random.random((1, size, size, 3)) * 20 + 128.
+	# 	step = 1.
+	# 	for i in range(80):
+	# 		loss_value, grads_value = iterate([input_img_data])
+	# 		input_img_data += grads_value * step
+	#
+	# 	img = input_img_data[0]
+	# 	return deprocess_image(img)
+	#
+	#
+	# # ------------------------------------------------------------------------------------------
+	# # Generating convolution layer filters for intermediate layers using above utility functions
+	# # ------------------------------------------------------------------------------------------
+	#
+	# layer_name = 'conv2d'
+	# size = 299
+	# margin = 5
+	# results = np.zeros((8 * size + 7 * margin, 8 * size + 7 * margin, 3))
+	#
+	# for i in range(8):
+	# 	for j in range(8):
+	# 		filter_img = generate_pattern(layer_name, i + (j * 8), size=size)
+	# 		horizontal_start = i * size + i * margin
+	# 		horizontal_end = horizontal_start + size
+	# 		vertical_start = j * size + j * margin
+	# 		vertical_end = vertical_start + size
+	# 		results[horizontal_start: horizontal_end, vertical_start: vertical_end, :] = filter_img
+	#
+	# plt.figure(figsize=(20, 20))
+	# plt.savefig(results)
